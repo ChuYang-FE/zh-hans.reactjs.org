@@ -24,7 +24,7 @@ titleForTitleTag: "'use server' 指示符"
 
 ### `'use server'` {/*use-server*/}
 
-在异步函数顶部添加 `'use server'` 以将该函数标记为可由客户端调用。我们将这些函数称为 **[服务器函数]((/reference/rsc/server-functions))**。
+在异步函数顶部添加 `'use server'` 以将该函数标记为可由客户端调用。我们将这些函数称为 **[服务器函数](/reference/rsc/server-functions)**。
 
 ```js {2}
 async function addToCart(data) {
@@ -95,7 +95,7 @@ async function addToCart(data) {
 * 来自事件处理程序的事件
 
 
-支持的可序列化返回值与边界客户端组件的 [可序列化 props](/reference/rsc/use-client#passing-props-from-server-to-client-components) 相同。
+支持的可序列化返回值与边界客户端组件的 [可序列化 props](/reference/rsc/use-client#serializable-types) 相同。
 
 
 ## 用法 {/*usage*/}

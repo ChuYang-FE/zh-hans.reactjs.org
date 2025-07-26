@@ -50,7 +50,7 @@ portal 只改变 DOM 节点的所处位置。在其他方面，渲染至 portal 
 
 * `domNode`：某个已经存在的 DOM 节点，例如由 `document.getElementById()` 返回的节点。在更新过程中传递不同的 DOM 节点将导致 portal 内容被重建。
 
-* **可选参数** `key`：用作 portal [key](/learn/rendering-lists/#keeping-list-items-in-order-with-key) 的独特字符串或数字。
+* **可选参数** `key`：用作 portal [key](/learn/rendering-lists#keeping-list-items-in-order-with-key) 的独特字符串或数字。
 
 #### 返回值 {/*returns*/}
 
@@ -240,7 +240,7 @@ export default function ModalContent({ onClose }) {
 
 使用 portal 时，确保应用程序的无障碍性非常重要。例如，你可能需要管理键盘焦点，以便用户可以自然进出 portal。
 
-创建模态对话框时，请遵循 [WAI-ARIA 模态实践指南](https://www.w3.org/WAI/ARIA/apg/#dialog_modal)。如果你使用了社区包，请确保它具有无障碍性，并遵循这些指南。
+创建模态对话框时，请遵循 [WAI-ARIA 模态实践指南](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal)。如果你使用了社区包，请确保它具有无障碍性，并遵循这些指南。
 
 </Pitfall>
 

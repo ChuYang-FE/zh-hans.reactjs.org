@@ -4,7 +4,7 @@ link: "<link>"
 
 <Intro>
 
-浏览器内置的 `<link>` 组件允许使用外部资源，例如样式表，或使用链接元数据注释文档。
+[浏览器内置的 `<link>` 组件](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/link) 允许使用外部资源，例如样式表，或使用链接元数据注释文档。
 
 ```js
 <link rel="icon" href="favicon.ico" />
@@ -30,7 +30,7 @@ link: "<link>"
 
 #### 属性 {/*props*/}
 
-`<link>` 支持所有 [常见元素属性](/reference/react-dom/components/common#props)。
+`<link>` 支持所有 [常见元素属性](/reference/react-dom/components/common#common-props)。
 
 * `rel`：字符串，必需字段，用于指定 [与资源的关系](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Attributes/rel)。React [将具有 `rel="stylesheet"` 的链接](#special-rendering-behavior) 与其他链接区别对待。
 

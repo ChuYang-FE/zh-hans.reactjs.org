@@ -77,8 +77,8 @@ function SubmitButton({ submitAction }) {
     <button
       disabled={isPending}
       onClick={() => {
-        startTransition(() => {
-          submitAction();
+        startTransition(async () => {
+          await submitAction();
         });
       }}
     >
@@ -227,9 +227,9 @@ import { startTransition } from "react";
 
 export default function Item({action}) {
   function handleChange(event) {
-    // To expose an action prop, call the callback in startTransition.
+    // To expose an action prop, await the callback in startTransition.
     startTransition(async () => {
-      action(event.target.value);
+      await action(event.target.value);
     })
   }
   return (
@@ -585,9 +585,9 @@ export async function updateQuantity(newQuantity) {
 
 你可以通过组件暴露一个 `action` 属性，允许父组件调用一个 Action。
 
-例如，这个 `TabButton` 组件将其点击事件逻辑封装到 `action` 属性中：
+例如，这个 `TabButton` 组件将 `onClick` 事件逻辑封装到 `action` 属性中：
 
-```js {8-10}
+```js {8-12}
 export default function TabButton({ action, children, isActive }) {
   const [isPending, startTransition] = useTransition();
   if (isActive) {
@@ -595,8 +595,10 @@ export default function TabButton({ action, children, isActive }) {
   }
   return (
     <button onClick={() => {
-      startTransition(() => {
-        action();
+      startTransition(async () => {
+        // await the action that's passed in.
+        // This allows it to be either sync or async. 
+        await action();
       });
     }}>
       {children}
@@ -655,10 +657,15 @@ export default function TabButton({ action, children, isActive }) {
   if (isActive) {
     return <b>{children}</b>
   }
+  if (isPending) {
+    return <b className="pending">{children}</b>;
+  }
   return (
-    <button onClick={() => {
-      startTransition(() => {
-        action();
+    <button onClick={async () => {
+      startTransition(async () => {
+        // await the action that's passed in.
+        // This allows it to be either sync or async. 
+        await action();
       });
     }}>
       {children}
@@ -728,9 +735,18 @@ export default function ContactTab() {
 ```css
 button { margin-right: 10px }
 b { display: inline-block; margin-right: 10px; }
+.pending { color: #777; }
 ```
 
 </Sandpack>
+
+<Note>
+
+When exposing an `action` prop from a component, you should `await` it inside the transition. 
+
+This allows the `action` callback to be either synchronous or asynchronous without requiring an additional `startTransition` to wrap the `await` in the action.
+
+</Note>
 
 ---
 
@@ -803,8 +819,8 @@ export default function TabButton({ action, children, isActive }) {
   }
   return (
     <button onClick={() => {
-      startTransition(() => {
-        action();
+      startTransition(async () => {
+        await action();
       });
     }}>
       {children}
@@ -1094,8 +1110,8 @@ export default function TabButton({ action, children, isActive }) {
   }
   return (
     <button onClick={() => {
-      startTransition(() => {
-        action();
+      startTransition(async () => {
+        await action();
       });
     }}>
       {children}
@@ -1822,8 +1838,8 @@ import {startTransition} from 'react';
 export default function Item({action}) {
   function handleChange(e) {
     // Update the quantity in an Action.
-    startTransition(() => {
-      action(e.target.value);
+    startTransition(async () => {
+      await action(e.target.value);
     });
   }  
   return (
@@ -1933,3 +1949,162 @@ export async function updateQuantity(newName) {
 这是预期内的，因为在 Transition 中的 Action 不保证执行顺序。对于常见用例，React 提供了更高级的抽象，如 [`useActionState`](/reference/react/useActionState) 和 [`<form>` actions](/reference/react-dom/components/form) 来为你处理顺序问题。对于高级用例，你需要自行实现队列和中止逻辑来处理这种情况。
 
 
+Example of `useActionState` handling execution order:
+
+<Sandpack>
+
+```json package.json hidden
+{
+  "dependencies": {
+    "react": "beta",
+    "react-dom": "beta"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
+```
+
+```js src/App.js
+import { useState, useActionState } from "react";
+import { updateQuantity } from "./api";
+import Item from "./Item";
+import Total from "./Total";
+
+export default function App({}) {
+  // Store the actual quantity in separate state to show the mismatch.
+  const [clientQuantity, setClientQuantity] = useState(1);
+  const [quantity, updateQuantityAction, isPending] = useActionState(
+    async (prevState, payload) => {
+      setClientQuantity(payload);
+      const savedQuantity = await updateQuantity(payload);
+      return savedQuantity; // Return the new quantity to update the state
+    },
+    1 // Initial quantity
+  );
+
+  return (
+    <div>
+      <h1>Checkout</h1>
+      <Item action={updateQuantityAction}/>
+      <hr />
+      <Total clientQuantity={clientQuantity} savedQuantity={quantity} isPending={isPending} />
+    </div>
+  );
+}
+
+```
+
+```js src/Item.js
+import {startTransition} from 'react';
+
+export default function Item({action}) {
+  function handleChange(e) {
+    // Update the quantity in an Action.
+    startTransition(() => {
+      action(e.target.value);
+    });
+  }  
+  return (
+    <div className="item">
+      <span>Eras Tour Tickets</span>
+      <label htmlFor="name">Quantity: </label>
+      <input
+        type="number"
+        onChange={handleChange}
+        defaultValue={1}
+        min={1}
+      />
+    </div>
+  )
+}
+```
+
+```js src/Total.js
+const intl = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD"
+});
+
+export default function Total({ clientQuantity, savedQuantity, isPending }) {
+  return (
+    <div className="total">
+      <span>Total:</span>
+      <div>
+        <div>
+          {isPending
+            ? "🌀 Updating..."
+            : `${intl.format(savedQuantity * 9999)}`}
+        </div>
+        <div className="error">
+          {!isPending &&
+            clientQuantity !== savedQuantity &&
+            `Wrong total, expected: ${intl.format(clientQuantity * 9999)}`}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+```js src/api.js
+let firstRequest = true;
+export async function updateQuantity(newName) {
+  return new Promise((resolve, reject) => {
+    if (firstRequest === true) {
+      firstRequest = false;
+      setTimeout(() => {
+        firstRequest = true;
+        resolve(newName);
+        // Simulate every other request being slower
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        resolve(newName);
+      }, 50);
+    }
+  });
+}
+```
+
+```css
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.item label {
+  flex: 1;
+  text-align: right;
+}
+
+.item input {
+  margin-left: 4px;
+  width: 60px;
+  padding: 4px;
+}
+
+.total {
+  height: 50px;
+  line-height: 25px;
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+}
+
+.total div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.error {
+  color: red;
+}
+```
+
+</Sandpack>

@@ -728,11 +728,11 @@ function TodoList() {
 - **Effect 不会在服务端运行**。这意味着最初由服务器渲染的 HTML 只会包含加载状态，而没有实际数据。客户端必须先下载所有的 JavaScript 并渲染应用，才会发现它需要加载数据——这并不高效。
 - **直接在 Effect 中进行数据请求，容易产生“网络瀑布（network waterfall）”**。首先父组件渲染时请求一些数据，随后渲染子组件，接着子组件开始请求它们的数据。如果网络速度不快，这种方式会比并行获取所有数据慢得多。
 - **直接在 Effect 中进行数据请求往往无法预加载或缓存数据**。例如，如果组件卸载后重新挂载，它必须重新获取数据。
-- **不够简洁**。编写 fecth 请求时为了避免 [竞态条件（race condition）](https://maxrozen.com/race-conditions-fetching-data-react-with-useeffect) 等问题，会需要很多样板代码。
+- **不够简洁**。编写 fetch 请求时为了避免 [竞态条件（race condition）](https://maxrozen.com/race-conditions-fetching-data-react-with-useeffect) 等问题，会需要很多样板代码。
 
 这些弊端并不仅限于 React。任何库在组件挂载时进行数据获取都会遇到这些问题。与路由处理一样，要做好数据获取并非易事，因此我们推荐以下方法：
 
-- **如果你正在使用 [框架](/learn/start-a-new-react-project#production-grade-react-frameworks) ，请使用其内置的数据获取机制**。现代 React 框架集成了高效的数据获取机制，不会出现上述问题。
+- **如果你正在使用 [框架](/learn/start-a-new-react-project#full-stack-frameworks) ，请使用其内置的数据获取机制**。现代 React 框架集成了高效的数据获取机制，不会出现上述问题。
 - **否则，请考虑使用或构建客户端缓存**。流行的开源解决方案包括 [React Query](https://tanstack.com/query/latest)、[useSWR](https://swr.vercel.app/) 和 [React Router v6.4+](https://beta.reactrouter.com/en/main/start/overview)。你也可以自己构建解决方案：在底层使用 Effect，但添加对请求的去重、缓存响应以及避免网络瀑布（通过预加载数据或将数据请求提升到路由层次）的逻辑。
 
 如果这些方法都不适合你，你可以继续直接在 Effect 中获取数据。

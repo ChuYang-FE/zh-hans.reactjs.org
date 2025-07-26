@@ -90,7 +90,7 @@ React 将会在 `根节点` 中显示 `<App />` 组件，并且控制组件中�
 
 如果你在一个根节点上多次调用了 `render`，React 仍然会更新 DOM，这样才能保证显示的内容是最新的。React 将会筛选出可复用的部分和需要更新的部分，对于需要更新的部分，是 React 通过与之前渲染的树进行 [“比较”](/learn/preserving-and-resetting-state) 得到的。在同一个根节点上再次调用 `render` 就和在根节点上调用 [`set` 函数](/reference/react/useState#setstate) 类似：React 会避免没必要的 DOM 更新。
 
-* Although rendering is synchronous once it starts, `root.render(...)` is not. This means code after `root.render()` may run before any effects (`useLayoutEffect`, `useEffect`) of that specific render are fired. This is usually fine and rarely needs adjustment. In rare cases where effect timing matters, you can wrap `root.render(...)` in [`flushSync`](https://react.dev/reference/react-dom/client/flushSync) to ensure the initial render runs fully synchronously.
+* Although rendering is synchronous once it starts, `root.render(...)` is not. This means code after `root.render()` may run before any effects (`useLayoutEffect`, `useEffect`) of that specific render are fired. This is usually fine and rarely needs adjustment. In rare cases where effect timing matters, you can wrap `root.render(...)` in [`flushSync`](https://react.dev/reference/react-dom/flushSync) to ensure the initial render runs fully synchronously.
   
   ```js
   const root = createRoot(document.getElementById('root'));
@@ -208,7 +208,7 @@ function Counter() {
 <div id="root"></div>
 ```
 
-这个过程太慢了！要解决这个问题，可以在 [服务端或者应用构建期间](/reference/react-dom/server) 通过组件生成一些初始 HTML。这样一来，在 JavaScript 加载之前，用户就能看到一些文字、图片，也能点击链接。我们推荐 [使用框架](/learn/start-a-new-react-project#production-grade-react-frameworks)，通过框架开箱即用的能力轻易地完成这个优化。根据框架运行的时机，分为 **服务端渲染（SSR）** 和 **静态站点生成（SSG）**。
+这个过程太慢了！要解决这个问题，可以在 [服务端或者应用构建期间](/reference/react-dom/server) 通过组件生成一些初始 HTML。这样一来，在 JavaScript 加载之前，用户就能看到一些文字、图片，也能点击链接。我们推荐 [使用框架](/learn/start-a-new-react-project#full-stack-frameworks)，通过框架开箱即用的能力轻易地完成这个优化。根据框架运行的时机，分为 **服务端渲染（SSR）** 和 **静态站点生成（SSG）**。
 
 </Note>
 
